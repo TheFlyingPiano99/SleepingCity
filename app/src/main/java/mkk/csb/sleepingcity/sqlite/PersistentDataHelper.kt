@@ -7,8 +7,8 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import mkk.csb.sleepingcity.model.Inhabitant
 import mkk.csb.sleepingcity.model.roles.Role
-import mkk.csb.sleepingcity.model.states.CycleState
-import java.text.SimpleDateFormat
+import mkk.csb.sleepingcity.model.roles.RoleBuilder
+import mkk.csb.sleepingcity.model.inhabitantStates.InhabitantStateBuilder
 
 
 /*
@@ -26,7 +26,7 @@ class PersistentDataHelper(context: Context) {
         DbConstants.Inhabitants.Columns.Name.name,
         DbConstants.Inhabitants.Columns.Alive.name,
         DbConstants.Inhabitants.Columns.Role.name,
-        DbConstants.Inhabitants.Columns.CycleState.name,
+        DbConstants.Inhabitants.Columns.State.name,
         DbConstants.Inhabitants.Columns.Miscellaneous.name
     )
 
@@ -46,8 +46,8 @@ class PersistentDataHelper(context: Context) {
             values.put(DbConstants.Inhabitants.Columns.ID.name, inhabitant.id)
             values.put(DbConstants.Inhabitants.Columns.Name.name, inhabitant.name)
             values.put(DbConstants.Inhabitants.Columns.Alive.name, inhabitant.alive)
-            values.put(DbConstants.Inhabitants.Columns.Role.name, inhabitant.role.toString())
-            values.put(DbConstants.Inhabitants.Columns.CycleState.name, inhabitant.cycleState.toString())
+            values.put(DbConstants.Inhabitants.Columns.Role.name, inhabitant.role?.toString() ?: "")
+            values.put(DbConstants.Inhabitants.Columns.State.name, inhabitant.state?.toString() ?: "")
             values.put(DbConstants.Inhabitants.Columns.Miscellaneous.name, inhabitant.miscellaneous)
             database!!.insert(DbConstants.Inhabitants.DATABASE_TABLE, null, values)
         }
@@ -75,12 +75,10 @@ class PersistentDataHelper(context: Context) {
         val id = cursor.getInt(DbConstants.Inhabitants.Columns.ID.ordinal)
         val name = cursor.getString(DbConstants.Inhabitants.Columns.Name.ordinal)
         val alive = (cursor.getInt(DbConstants.Inhabitants.Columns.Alive.ordinal) > 0)
-        val role : Role? = when(cursor.getString(DbConstants.Inhabitants.Columns.Role.ordinal)) {
-            else -> null
-        }
-        val cycleState : CycleState? = when(cursor.getString(DbConstants.Inhabitants.Columns.CycleState.ordinal)) {
-            else -> null
-        }
+        val roleBuilder = RoleBuilder()
+        val role : Role? = roleBuilder.buildFromName(cursor.getString(DbConstants.Inhabitants.Columns.Role.ordinal))
+        val cycleStateBuilder = InhabitantStateBuilder()
+        val cycleState = cycleStateBuilder.buildFromName(cursor.getString(DbConstants.Inhabitants.Columns.State.ordinal))
         val miscellaneous = cursor.getString(DbConstants.Inhabitants.Columns.Miscellaneous.ordinal)
         return Inhabitant(id, name, alive, role, cycleState, miscellaneous)
     }
