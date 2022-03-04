@@ -1,6 +1,7 @@
 package mkk.csb.sleepingcity
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
@@ -52,6 +53,9 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         load()
+        //Test:
+        scene.beginGame()
+        Log.v("MainActivity", scene.toString())
     }
 
     override fun onPause() {

@@ -9,7 +9,7 @@ import android.util.Log
 object DbConstants {
 
     const val DATABASE_NAME = "sleeping_city.db"
-    const val DATABASE_VERSION = 2
+    const val DATABASE_VERSION = 3
 
     object Inhabitants {
         const val DATABASE_TABLE = "inhabitants"
@@ -17,9 +17,9 @@ object DbConstants {
         enum class Columns {
             ID,
             Name,
-            Alive,
+            Alive,      //0 = false, 1 = true
             Role,
-            CycleState,
+            State,
             Miscellaneous
         }
 
@@ -28,7 +28,7 @@ object DbConstants {
             ${Columns.Name.name} text not null,
             ${Columns.Alive.name} integer not null,
             ${Columns.Role.name} text not null,
-            ${Columns.CycleState.name} text not null,
+            ${Columns.State.name} text not null,
             ${Columns.Miscellaneous.name} text
             );"""
 
@@ -46,6 +46,14 @@ object DbConstants {
             )
             database.execSQL(DATABASE_DROP)
             onCreate(database)
+        }
+    }
+
+    object Scene {
+        const val DATABASE_TABLE = "scene"
+        enum class Columns {
+            ID,
+
         }
     }
 }
