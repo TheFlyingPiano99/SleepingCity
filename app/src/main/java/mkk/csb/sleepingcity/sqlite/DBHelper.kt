@@ -1,4 +1,4 @@
-package hu.bme.mobweb.lab.sudoku.sqlite
+package mkk.csb.sleepingcity.sqlite
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase

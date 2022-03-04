@@ -1,4 +1,4 @@
-package hu.bme.mobweb.lab.sudoku.sqlite
+package mkk.csb.sleepingcity.sqlite
 
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
@@ -9,7 +9,7 @@ import android.util.Log
 object DbConstants {
 
     const val DATABASE_NAME = "sleeping_city.db"
-    const val DATABASE_VERSION = 1
+    const val DATABASE_VERSION = 2
 
     object Inhabitants {
         const val DATABASE_TABLE = "inhabitants"
@@ -26,7 +26,7 @@ object DbConstants {
         private val DATABASE_CREATE = """create table if not exists $DATABASE_TABLE (
             ${Columns.ID.name} integer primary key,
             ${Columns.Name.name} text not null,
-            ${Columns.Alive.name} bool not null,
+            ${Columns.Alive.name} integer not null,
             ${Columns.Role.name} text not null,
             ${Columns.CycleState.name} text not null,
             ${Columns.Miscellaneous.name} text

@@ -13,12 +13,15 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import mkk.csb.sleepingcity.databinding.ActivityMainBinding
 import mkk.csb.sleepingcity.model.Inhabitant
+import mkk.csb.sleepingcity.model.Scene
+import mkk.csb.sleepingcity.sqlite.PersistentDataHelper
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private lateinit var inhabitants : List<Inhabitant>
+    private val scene = Scene()
+    private val dataHelper = PersistentDataHelper(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +47,28 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-        inhabitants = ArrayList()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        load()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        persist()   // Prevent from loosing current game state, even if the device gets rotated.
+    }
+
+    private fun load() {
+        dataHelper.open()
+        scene.load(dataHelper)
+        dataHelper.close()
+    }
+
+    private fun persist() {
+        dataHelper.open()
+        scene.persist(dataHelper)
+        dataHelper.close()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
