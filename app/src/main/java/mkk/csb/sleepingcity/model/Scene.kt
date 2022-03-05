@@ -75,6 +75,9 @@ class Scene {
     fun beginGame() {
         sortInhabitantsToGroups()
 
+        addInhabitant("Egyes")
+        addInhabitant("Kettes")
+        addInhabitant("Harmas")
 
         for (inhabitant in inhabitants) {
             inhabitant.beginGame()
@@ -111,7 +114,6 @@ class Scene {
                 roleGroups[inhabitant.role!!]?.addMember(inhabitant)
             }
         }
-        Log.v("Scene", "Are hashes equal? -> " + (inhabitants[0].role!!.hashCode() == inhabitants[1].role!!.hashCode()).toString())
     }
 
 }
