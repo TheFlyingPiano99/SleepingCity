@@ -9,6 +9,7 @@ class DbHelper(context: Context) :
 
     override fun onCreate(sqLiteDatabase: SQLiteDatabase) {
         DbConstants.Inhabitants.onCreate(sqLiteDatabase)
+        DbConstants.Sessions.onCreate(sqLiteDatabase)
     }
 
     override fun onUpgrade(
@@ -17,5 +18,6 @@ class DbHelper(context: Context) :
         newVersion: Int
     ) {
         DbConstants.Inhabitants.onUpgrade(sqLiteDatabase, oldVersion, newVersion)
+        DbConstants.Sessions.onUpgrade(sqLiteDatabase, oldVersion, newVersion)
     }
 }

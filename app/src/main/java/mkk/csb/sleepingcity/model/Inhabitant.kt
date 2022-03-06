@@ -1,8 +1,5 @@
 package mkk.csb.sleepingcity.model
 
-import mkk.csb.sleepingcity.model.roles.Role
-import mkk.csb.sleepingcity.model.inhabitantStates.*
-
 class Inhabitant() {
 
     private companion object IDGenerator {
@@ -17,10 +14,23 @@ class Inhabitant() {
                 maxID = field
             }
         }
+    var session : Session? = null
     lateinit var name : String
     var alive : Boolean = true
     var role : Role? = null
-    var state : InhabitantState? = null
+    enum class State {
+        AWAKE,
+        SLEEPING,
+        PERFORMING_NIGHTTIME_ACTION,
+        DEAD;
+
+        open fun onEnter() {
+        }
+
+        open fun onExit() {
+        }
+    }
+    var state : State? = null
     var miscellaneous : String
         set(value) {
             role?.setDataFromMiscellaneous(value)
@@ -29,8 +39,9 @@ class Inhabitant() {
             return role?.getMiscellaneous() ?: ""
         }
 
-    constructor(id : Int, name : String, alive : Boolean, role : Role?, state: InhabitantState?, miscellaneous : String) : this() {
+    constructor(id : Int, session: Session?, name : String, alive : Boolean, role : Role?, state: State?, miscellaneous : String) : this() {
         this.id = id
+        this.session = session
         this.name = name
         this.alive = alive
         this.role = role
@@ -39,52 +50,52 @@ class Inhabitant() {
     }
 
     override fun toString(): String {
-        return "id: " + id.toString() + ", name: " + name + ", alive: " + alive.toString() + ", role: " + role.toString() + ", state: " + state.toString() + ", miscellaneous: " + miscellaneous
+        return "id: " + id.toString() + ", sessionID: "+ session?.id + ", name: " + name + ", alive: " + alive.toString() + ", role: " + role.toString() + ", state: " + state.toString() + ", miscellaneous: " + miscellaneous
     }
 
     fun beginGame() {
         alive = true
-        transitionToStates(AwakeState())
+        transitionToStates(State.AWAKE)
         role?.onBeginGame()
     }
 
     fun goToSleep() {
         if (alive) {
-            transitionToStates(SleepingState())
+            transitionToStates(State.SLEEPING)
             role?.onGoToSleep()
         }
     }
 
     fun wakeUp() {
         if (alive) {
-            transitionToStates(AwakeState())
+            transitionToStates(State.AWAKE)
             role?.onWakeUp()
         }
     }
 
     fun beginPerformingNighttimeAction() {
         if (alive) {
-            transitionToStates(PerformingNighttimeActionState())
+            transitionToStates(State.PERFORMING_NIGHTTIME_ACTION)
             role?.onBeginPerformingNighttimeAction()
         }
     }
 
     fun finishPerformingNighttimeAction() {
         if (alive) {
-            transitionToStates(SleepingState())
+            transitionToStates(State.SLEEPING)
             role?.onFinishPerformingNighttimeAction()
         }
     }
 
     fun getKilled() {
         if (alive) {
-            transitionToStates(DeadState())
+            transitionToStates(State.DEAD)
             role?.onGetKilled()
             alive = false
         }
     }
 
-    private fun transitionToStates(newState : InhabitantState) {
+    private fun transitionToStates(newState : State) {
         state?.onExit()
         newState.onEnter()
         state = newState;
