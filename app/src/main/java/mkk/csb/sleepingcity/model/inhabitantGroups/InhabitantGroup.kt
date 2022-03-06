@@ -1,8 +1,6 @@
 package mkk.csb.sleepingcity.model.inhabitantGroups
 
 import mkk.csb.sleepingcity.model.Inhabitant
-import mkk.csb.sleepingcity.model.roles.Role
-import java.util.Iterator
 
 abstract class InhabitantGroup {
     private val members : ArrayList<Inhabitant> = ArrayList()

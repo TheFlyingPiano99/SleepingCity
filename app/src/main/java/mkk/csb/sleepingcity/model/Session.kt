@@ -1,36 +1,53 @@
 package mkk.csb.sleepingcity.model
 
 import android.util.Log
-import mkk.csb.sleepingcity.model.inhabitantGroups.AliveGroup
 import mkk.csb.sleepingcity.model.inhabitantGroups.RoleGroup
-import mkk.csb.sleepingcity.model.roles.Granny
-import mkk.csb.sleepingcity.model.inhabitantStates.AwakeState
-import mkk.csb.sleepingcity.model.roles.Killer
-import mkk.csb.sleepingcity.model.roles.Role
-import mkk.csb.sleepingcity.sqlite.PersistentDataHelper
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 /*
 Contains all the objects related to the core logic of the game.
  */
-class Scene {
-    private var inhabitants : MutableList<Inhabitant> = ArrayList()
+class Session() {
 
+    private companion object IDGenerator {
+        private var maxID : Int = -1
+    }
+    var id : Int = ++maxID
+        get
+        set(value) {
+            field = value
+            if (field > maxID) {
+                maxID = field
+            }
+        }
+
+    var dateOfCreation : Date? = null
+    var winner : Role.Faction? = Role.Faction.NULL
+    enum class State {
+        DAY,
+        NIGHT,
+        FINISHED
+    }
+    var state : State? = null
+    var daysSpent : Int = 0
+
+    private var inhabitants : MutableList<Inhabitant> = ArrayList()
     private val roleGroups : HashMap<Role, RoleGroup> = HashMap()
     private val currentRoleGroup : RoleGroup? = null
 
-    val RoleOrder : Array<Role> = arrayOf(Granny(), Killer())
-
-    fun load(dataHelper : PersistentDataHelper) {
-        inhabitants = dataHelper.restoreTables()
-    }
-
-    fun persist(dataHelper : PersistentDataHelper) {
-        dataHelper.clearTables()
-        dataHelper.persistTables(inhabitants)
+    constructor(id : Int, dateOfCreation : Date?, daysSpent : Int, winner : Role.Faction?, state : State?) : this() {
+        this.id = id
+        this.dateOfCreation = dateOfCreation
+        this.daysSpent = daysSpent
+        this.winner = winner
+        this.state = state
     }
 
     override fun toString(): String {
-        var str = "Scene\n\tGroups:\n"
+
+        var str = "Session ID = ${id.toString()} \n\tGroups:\n"
         for (group in roleGroups) {
             str += "\t\t" + group.value.role.toString() + " group:\n"
             for (member in group.value.iterator()) {
@@ -56,28 +73,30 @@ class Scene {
         addInhabitant("Simon")
     }
 
+    fun addInhabitant(inhabitant : Inhabitant) : Inhabitant {
+        inhabitants.add(inhabitant)
+        addInhabitantToGroup(inhabitant)
+        return inhabitant
+    }
+
     fun addInhabitant(name : String) : Inhabitant {
-        /*
         for (inhabitant in inhabitants) {
             if (inhabitant.name == name) {
                 throw Exception("Inhabitant with this name already exists!")
             }
         }
-        */
+
         val inhabitant = Inhabitant()
         inhabitant.name = name
-        inhabitant.role = Granny()
-        inhabitant.state = AwakeState()
+        inhabitant.role = Role.GRANNY
+        inhabitant.state = Inhabitant.State.AWAKE
         inhabitants.add(inhabitant)
+        addInhabitantToGroup(inhabitant)
         return inhabitant
     }
 
     fun beginGame() {
-        sortInhabitantsToGroups()
-
-        addInhabitant("Egyes")
-        addInhabitant("Kettes")
-        addInhabitant("Harmas")
+        sortInhabitantsIntoGroups()
 
         for (inhabitant in inhabitants) {
             inhabitant.beginGame()
@@ -104,15 +123,20 @@ class Scene {
         inhabitants.clear()
     }
 
-    private fun sortInhabitantsToGroups() {
+    private fun addInhabitantToGroup(inhabitant : Inhabitant) {
+        if (inhabitant.role != null) {  // What role?
+            if (!roleGroups.containsKey(inhabitant.role!!)) {
+                roleGroups.put(inhabitant.role!!, RoleGroup(inhabitant.role!!))
+            }
+            roleGroups[inhabitant.role!!]?.addMember(inhabitant)
+        }
+    }
+
+
+    private fun sortInhabitantsIntoGroups() {
         roleGroups.clear()
         for (inhabitant in inhabitants) {
-            if (inhabitant.role != null) {  // What role?
-                if (!roleGroups.containsKey(inhabitant.role!!)) {
-                    roleGroups.put(inhabitant.role!!, RoleGroup(inhabitant.role!!))
-                }
-                roleGroups[inhabitant.role!!]?.addMember(inhabitant)
-            }
+            addInhabitantToGroup(inhabitant)
         }
     }
 

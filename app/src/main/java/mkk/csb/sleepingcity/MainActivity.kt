@@ -13,15 +13,15 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import mkk.csb.sleepingcity.databinding.ActivityMainBinding
-import mkk.csb.sleepingcity.model.Inhabitant
-import mkk.csb.sleepingcity.model.Scene
+import mkk.csb.sleepingcity.model.Session
+import mkk.csb.sleepingcity.model.SessionManager
 import mkk.csb.sleepingcity.sqlite.PersistentDataHelper
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private val scene = Scene()
+    private val sessionManager = SessionManager()
     private val dataHelper = PersistentDataHelper(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,8 +54,9 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         load()
         //Test:
-        scene.beginGame()
-        Log.v("MainActivity", scene.toString())
+        sessionManager.createSession()
+        Log.v("MainActivity", sessionManager.toString())
+
     }
 
     override fun onPause() {
@@ -65,13 +66,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun load() {
         dataHelper.open()
-        scene.load(dataHelper)
+        sessionManager.load(dataHelper)
         dataHelper.close()
     }
 
     private fun persist() {
         dataHelper.open()
-        scene.persist(dataHelper)
+        sessionManager.persist(dataHelper)
         dataHelper.close()
     }
 
